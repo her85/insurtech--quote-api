@@ -1,0 +1,72 @@
+// .gitignore
+# Dependencies
+node_modules
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/
+
+# Database
+*.db
+*.db-journal
+prisma/migrations/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Additional ignores (recommended)
+# Framework/build tool caches
+.next/
+.parcel-cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage & tests
+coverage/
+.nyc_output/
+coverage-final.json
+test-results/
+
+# Package manager lockfiles
+pnpm-lock.yaml
+
+# Yarn PnP
+.pnp.cjs
+.pnp.js
+
+# Caches
+.cache/
+node_modules/.cache/
+
+# Tools
+.eslintcache
+.sass-cache
+
+# Secrets / keys
+*.key
+*.pem
+
+# OS
+desktop.ini

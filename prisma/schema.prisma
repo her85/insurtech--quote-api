@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Brand {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  logo      String?
+  active    Boolean   @default(true)
+  models    Model[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Model {
+  id          String    @id @default(uuid())
+  name        String
+  brandId     String
+  brand       Brand     @relation(fields: [brandId], references: [id])
+  type        String    // sedan, suv, pickup, hatchback, coupe
+  active      Boolean   @default(true)
+  versions    Version[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([name, brandId])
+}
+
+model Version {
+  id              String    @id @default(uuid())
+  year            Int
+  fiscalValue     Float     // Valor fiscal en ARS
+  modelId         String
+  model           Model     @relation(fields: [modelId], references: [id])
+  fuelType        String    // nafta, diesel, electrico, hibrido
+  engineSize      Float?    // Cilindrada
+  active          Boolean   @default(true)
+  quotes          Quote[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([year, modelId])
+}
+
+model Customer {
+  id                String    @id @default(uuid())
+  firstName         String
+  lastName          String
+  dni               String    @unique
+  email             String    @unique
+  phone             String
+  dateOfBirth       DateTime
+  gender            String    // M, F, X
+  address           String
+  postalCode        String
+  city              String
+  province          String
+  licenseDate       DateTime  // Fecha de emisión de licencia
+  licenseNumber     String
+  quotes            Quote[]
+  claims            Claim[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Coverage {
+  id              String          @id @default(uuid())
+  name            String          @unique
+  description     String
+  type            String          // RC (responsabilidad civil), Terceros_Completos, Todo_Riesgo
+  baseMultiplier  Float           // Multiplicador sobre prima base
+  features        String          // JSON con features incluidas
+  active          Boolean         @default(true)
+  quotes          Quote[]
+  additionals     CoverageAdditional[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model CoverageAdditional {
+  id          String    @id @default(uuid())
+  name        String
+  description String
+  price       Float     // Precio fijo mensual
+  coverageId  String?
+  coverage    Coverage? @relation(fields: [coverageId], references: [id])
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Quote {
+  id                    String    @id @default(uuid())
+  quoteNumber           String    @unique
+  customerId            String
+  customer              Customer  @relation(fields: [customerId], references: [id])
+  versionId             String
+  version               Version   @relation(fields: [versionId], references: [id])
+  coverageId            String
+  coverage              Coverage  @relation(fields: [coverageId], references: [id])
+  
+  // Datos del vehículo al momento de cotización
+  vehiclePlate          String?
+  vehicleUsage          String    // particular, comercial, rideshare
+  insuredValue          Float     // Valor asegurado
+  
+  // Factores de riesgo
+  agefactor             Float
+  vehicleAgeFactor      Float
+  zoneFactor            Float
+  usageFactor           Float
+  genderFactor          Float
+  claimsHistoryFactor   Float
+  
+  // Cálculo de prima
+  basePremium           Float
+  riskPremium           Float     // basePremium * todos los factores
+  additionalsCost       Float
+  totalMonthly          Float
+  totalAnnual           Float
+  
+  // Adicionales seleccionados (JSON array de IDs)
+  selectedAdditionals   String    @default("[]")
+  
+  // Claims history al momento de cotización
+  claimsLast3Years      Int       @default(0)
+  
+  status                String    @default("pending") // pending, accepted, rejected, expired
+  expiresAt             DateTime
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Claim {
+  id              String    @id @default(uuid())
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  claimDate       DateTime
+  description     String
+  claimType       String    // collision, theft, fire, vandalism, natural_disaster, other
+  amount          Float
+  status          String    // pending, approved, rejected, paid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model RiskZone {
+  id          String    @id @default(uuid())
+  postalCode  String    @unique
+  city        String
+  province    String
+  riskLevel   String    // bajo, medio, alto, muy_alto
+  factor      Float     // Multiplicador de riesgo
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  action      String    // quote_created, quote_viewed, pdf_generated
+  entityType  String    // quote, customer
+  entityId    String
+  userId      String?
+  ipAddress   String?
+  userAgent   String?
+  details     String?   // JSON con detalles adicionales
+  createdAt   DateTime  @default(now())
+}
