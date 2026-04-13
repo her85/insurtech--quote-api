@@ -7,12 +7,11 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Sistema de Cotización de Seguros Automotor API',
+      title: 'Quote API',
       version: '1.0.0',
       description: 'API para cotización inteligente de seguros de vehículos',
       contact: {
         name: 'API Support',
-        email: 'herbotto1985@gmail.com'
       }
     },
     servers: [
@@ -130,6 +129,6 @@ const specs = swaggerJsdoc(options);
 export const swaggerSetup = (app: Express) => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'InsurTech API Docs'
+    customSiteTitle: 'Quote API Docs'
   }));
 };
