@@ -30,8 +30,9 @@ export const getCoverages = async (req: Request, res: Response, next: NextFuncti
 
 export const getCoverage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const coverage = await prisma.coverage.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       include: {
         additionals: {
           where: { active: true }

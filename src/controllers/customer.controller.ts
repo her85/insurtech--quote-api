@@ -21,8 +21,9 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
 
 export const getCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const customer = await prisma.customer.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       include: {
         quotes: {
           orderBy: { createdAt: 'desc' },
@@ -45,8 +46,9 @@ export const getCustomer = async (req: Request, res: Response, next: NextFunctio
 
 export const getCustomerByDni = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const dni = Array.isArray(req.params.dni) ? req.params.dni[0] : req.params.dni;
     const customer = await prisma.customer.findUnique({
-      where: { dni: req.params.dni }
+      where: { dni }
     });
     
     if (!customer) {

@@ -17,9 +17,7 @@ export const calculateQuoteSchema = z.object({
       .optional()
       .transform(val => val?.toUpperCase()),
     
-    vehicleUsage: z.enum(['particular', 'comercial', 'rideshare'], {
-      errorMap: () => ({ message: 'Usage must be: particular, comercial, or rideshare' })
-    }),
+    vehicleUsage: z.enum(['particular', 'comercial', 'rideshare'] as const),
     
     insuredValue: z.number()
       .positive('Insured value must be positive')
@@ -42,7 +40,7 @@ export const listQuotesSchema = z.object({
   query: z.object({
     customerId: z.string().uuid().optional(),
     status: z.enum(['pending', 'accepted', 'rejected', 'expired']).optional(),
-    page: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional().default('10')
+    page: z.string().regex(/^\d+$/).transform(Number).optional().default(1),
+    limit: z.string().regex(/^\d+$/).transform(Number).optional().default(10)
   })
 });

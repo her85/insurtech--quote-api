@@ -1,7 +1,6 @@
 // src/middlewares/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
 
 export class AppError extends Error {
   constructor(
@@ -15,7 +14,7 @@ export class AppError extends Error {
 }
 
 export const errorHandler = (
-  err: Error,
+  err: any,
   _req: Request,
   res: Response,
   _next: NextFunction
@@ -25,25 +24,24 @@ export const errorHandler = (
   if (err instanceof ZodError) {
     return res.status(400).json({
       message: 'Validation error',
-      errors: err.errors.map(e => ({
-        field: e.path.join('.'),
-        message: e.message
+      errors: err.issues.map((issue: any) => ({
+        field: issue.path.join('.'),
+        message: issue.message
       }))
     });
   }
 
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if (err.code === 'P2002') {
-      return res.status(409).json({
-        message: 'Resource already exists',
-        field: err.meta?.target
-      });
-    }
-    if (err.code === 'P2025') {
-      return res.status(404).json({
-        message: 'Resource not found'
-      });
-    }
+  // Prisma errors: usar cast a any para acceder a code/meta (evita problemas con tipos runtime)
+  if ((err as any)?.code === 'P2002') {
+    return res.status(409).json({
+      message: 'Resource already exists',
+      field: (err as any).meta?.target
+    });
+  }
+  if ((err as any)?.code === 'P2025') {
+    return res.status(404).json({
+      message: 'Resource not found'
+    });
   }
 
   if (err instanceof AppError) {

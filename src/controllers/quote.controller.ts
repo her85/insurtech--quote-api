@@ -13,7 +13,8 @@ export const calculateQuote = async (req: Request, res: Response, next: NextFunc
 
 export const getQuote = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const quote = await quoteService.getQuoteById(req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const quote = await quoteService.getQuoteById(id);
     res.json(quote);
   } catch (error) {
     next(error);

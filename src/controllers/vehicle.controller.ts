@@ -27,9 +27,10 @@ export const getModelsByBrand = async (
   next: NextFunction,
 ) => {
   try {
+    const brandId = Array.isArray(req.params.brandId) ? req.params.brandId[0] : req.params.brandId;
     const models = await prisma.model.findMany({
       where: {
-        brandId: req.params.brandId,
+        brandId,
         active: true,
       },
       include: { brand: true },
@@ -47,9 +48,10 @@ export const getVersionsByModel = async (
   next: NextFunction,
 ) => {
   try {
+    const modelId = Array.isArray(req.params.modelId) ? req.params.modelId[0] : req.params.modelId;
     const versions = await prisma.version.findMany({
       where: {
-        modelId: req.params.modelId,
+        modelId,
         active: true,
       },
       include: {
