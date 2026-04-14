@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:9000' || 'https://insurtech-quote.onrender.com',
+  origin: ['http://localhost:9000', 'https://insurtech-quote.onrender.com'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
