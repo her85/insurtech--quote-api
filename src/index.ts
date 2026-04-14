@@ -13,10 +13,11 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(helmet());
-app.use(cors({
+/*app.use(cors({
   origin: ['http://localhost:9000', 'https://insurtech-quote.onrender.com'],
   credentials: true
-}));
+}));*/
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
