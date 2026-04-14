@@ -8,9 +8,12 @@ async function main() {
 
   // Limpiar base de datos en orden correcto (por las foreign keys)
   console.log('🗑️  Cleaning database...');
+  // Primero eliminar audit logs para evitar referencias
   await prisma.auditLog.deleteMany();
-  await prisma.claim.deleteMany();
+  // Luego eliminar entidades relacionadas a Customer (Quote, Claim) y por último los Customers
+  console.log('🧹 Deleting Quote and Claim records related to customers...');
   await prisma.quote.deleteMany();
+  await prisma.claim.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.coverageAdditional.deleteMany();
   await prisma.coverage.deleteMany();
