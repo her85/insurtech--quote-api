@@ -3,6 +3,10 @@ import { Express } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
+const apis = process.env.NODE_ENV === 'production'
+  ? ['./dist/routes/*.js', './dist/controllers/*.js']
+  : ['./src/routes/*.ts', './src/controllers/*.ts'];
+
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -14,8 +18,7 @@ const options = {
         name: 'API Support',
       }
     },
-    servers: [
-    ],
+    servers: [],
     components: {
       schemas: {
         Error: {
@@ -117,14 +120,24 @@ const options = {
       }
     }
   },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts']
+  apis
 };
 
-const specs = swaggerJsdoc(options);
-
 export const swaggerSetup = (app: Express) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Quote API Docs'
-  }));
+  try {
+    const specs = swaggerJsdoc(options);
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+      customCss: '.swagger-ui .topbar { display: none }',
+      customSiteTitle: 'Quote API Docs'
+    }));
+  } catch (err) {
+    // Si falla la generación/servicio de Swagger, no romper toda la app: devolver 503 en /api-docs
+    // y registrar el error para revisar en los logs de la plataforma (Render, Heroku, etc.)
+    // Mantener la API principal funcionando.
+    // eslint-disable-next-line no-console
+    console.error('Swagger setup error:', err);
+    app.get('/api-docs', (_req, res) => {
+      res.status(503).json({ message: 'Swagger disabled' });
+    });
+  }
 };
