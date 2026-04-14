@@ -15,7 +15,7 @@ dist/
 build/
 
 # Database
-*.db
+db
 *.db-journal
 prisma/migrations/
 
