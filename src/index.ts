@@ -13,11 +13,16 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(helmet());
-/*app.use(cors({
-  origin: ['http://localhost:9000', 'https://insurtech-quote.onrender.com'],
-  credentials: true
-}));*/
-app.use(cors());
+// Configurar orígenes permitidos desde env para evitar problemas de CORS en deploy
+const allowedOrigins = (process.env.FRONT_ORIGINS || 'http://localhost:9000,https://insurtech-quote.onrender.com')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
